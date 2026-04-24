@@ -41,11 +41,11 @@ main {
 .price { font-size: 1.5rem; margin: 15px 0; color: #2ed573; }
 
 .buy-btn {
+    display: inline-block; /* Dodaj to */
+    text-decoration: none; /* Usuwa podkreślenie linku */
     background: #ff4757;
     color: white;
-    border: none;
     padding: 10px 20px;
     border-radius: 5px;
-    cursor: pointer;
     font-weight: bold;
 }
