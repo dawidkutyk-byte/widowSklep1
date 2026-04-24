@@ -5,7 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mój Sklep - Pluginy i Gry</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
+<script>
+        let tipToken = "TUTAJ_WKLEJ_TWOJ_TOKEN"; // Tylko końcówka z Widget URL
+
+        function initTipplyListener(expectedNick, expectedAmount) {
+            const serverHost = "https://alert-ws.tipply.pl";
+            
+            // io(...) pochodzi właśnie z tej biblioteki, którą dodałeś w head
+            const socket = io(`${serverHost}/${tipToken}`, {
+                transports: ["polling", "websocket"],
+                query: { token: tipToken, EIO: 3 },
+                path: "/socket.io/"
+            });
+
+            socket.on("connect", () => {
+                console.log("Połączono z nasłuchem Tipply!");
+            });
+
+            socket.on("alert", (data) => {
+                console.log("Otrzymano alert:", data);
+                const receivedAmount = Math.floor(data.amount / 100);
+                
+                if (data.nickname.toLowerCase() === expectedNick.toLowerCase()) {
+                    alert("Płatność wykryta! Dzięki!");
+                    // Tutaj Twój kod co ma się stać po zapłacie
+                }
+            });
+        }
+        
+        // ... reszta funkcji jak openPayment() czy redirectToTipply()
+    </script>
+</body>
 <body>
 
     <nav>
