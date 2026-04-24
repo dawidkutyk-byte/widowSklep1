@@ -7,37 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
-<script>
-        let tipToken = "TUTAJ_WKLEJ_TWOJ_TOKEN"; // Tylko końcówka z Widget URL
-
-        function initTipplyListener(expectedNick, expectedAmount) {
-            const serverHost = "https://alert-ws.tipply.pl";
-            
-            // io(...) pochodzi właśnie z tej biblioteki, którą dodałeś w head
-            const socket = io(`${serverHost}/${tipToken}`, {
-                transports: ["polling", "websocket"],
-                query: { token: tipToken, EIO: 3 },
-                path: "/socket.io/"
-            });
-
-            socket.on("connect", () => {
-                console.log("Połączono z nasłuchem Tipply!");
-            });
-
-            socket.on("alert", (data) => {
-                console.log("Otrzymano alert:", data);
-                const receivedAmount = Math.floor(data.amount / 100);
-                
-                if (data.nickname.toLowerCase() === expectedNick.toLowerCase()) {
-                    alert("Płatność wykryta! Dzięki!");
-                    // Tutaj Twój kod co ma się stać po zapłacie
-                }
-            });
-        }
-        
-        // ... reszta funkcji jak openPayment() czy redirectToTipply()
-    </script>
-</body>
 <body>
 
     <nav>
@@ -60,46 +29,93 @@
             <h3>Super Plugin MC</h3>
             <p>Unikalny system ekonomii na Twój serwer.</p>
             <div class="price">29.99 PLN</div>
-            <button class="buy-btn">Kup Teraz</button>
+            <button class="buy-btn" onclick="openPayment('Super Plugin MC', 29.99)">Kup Teraz</button>
         </div>
 
-<div class="card">
-    <img src="img/plugin.png" alt="Plugin">
-    <h3>Super Plugin MC</h3>
-    <div class="price">20.00 PLN</div>
-    
-    <a href="https://widgets.tipply.pl/TIP_ALERT/a6be03c9-2486-4f5b-b7cc-30544aca3e18" class="buy-btn" target="_blank">
-        Kup przez Tipply
-    </a>
-</div>
+        <div class="card">
+            <img src="img/plugin.png" alt="Plugin">
+            <h3>Mapa Roblox</h3>
+            <p>Profesjonalna mapa typu Tycoon.</p>
+            <div class="price">20.00 PLN</div>
+            <button class="buy-btn" onclick="openPayment('Mapa Roblox', 20.00)">Kup Teraz</button>
+        </div>
     </main>
 
     <div id="payment-modal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2>Finalizacja zakupu</h2>
-        <p id="product-info">Kupujesz: <b>Plugin MC</b> za <b>20 PLN</b></p>
-        
-        <div class="input-group">
-            <label>Twój Nick z Tipply:</label>
-            <input type="text" id="buyer-nick" placeholder="Wpisz nick, którego użyjesz w Tipply">
-        </div>
-        
-        <div class="input-group">
-            <label>Twój Email (do wysyłki):</label>
-            <input type="email" id="buyer-email" placeholder="twoj@email.pl">
-        </div>
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Finalizacja zakupu</h2>
+            <p id="product-info">Wybierz produkt...</p>
+            
+            <div class="input-group">
+                <label>Twój Nick z Tipply:</label>
+                <input type="text" id="buyer-nick" placeholder="Wpisz nick, którego użyjesz w Tipply">
+            </div>
+            
+            <div class="input-group">
+                <label>Twój Email (do wysyłki):</label>
+                <input type="email" id="buyer-email" placeholder="twoj@email.pl">
+            </div>
 
-        <button class="pay-go-btn" onclick="redirectToTipply()">Przejdź do płatności</button>
-        
-        <div id="status-area" style="margin-top: 20px; display: none;">
-            <div class="loader"></div>
-            <p>Oczekiwanie na płatność na Tipply...</p>
+            <button class="pay-go-btn" onclick="redirectToTipply()">Przejdź do płatności</button>
+            
+            <div id="status-area" style="margin-top: 20px; display: none;">
+                <div class="loader"></div>
+                <p id="status-text">Oczekiwanie na płatność na Tipply...</p>
+            </div>
         </div>
     </div>
-</div>
 
+    <script>
+        const tipToken = "a6be03c9-2486-4f5b-b7cc-30544aca3e18";
+        let currentPrice = 0;
+        let currentProductName = "";
+
+        function openPayment(name, price) {
+            currentPrice = price;
+            currentProductName = name;
+            document.getElementById('product-info').innerHTML = `Kupujesz: <b>${name}</b> za <b>${price} PLN</b>`;
+            document.getElementById('payment-modal').style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById('payment-modal').style.display = "none";
+        }
+
+        function redirectToTipply() {
+            const nick = document.getElementById('buyer-nick').value;
+            const email = document.getElementById('buyer-email').value;
+            
+            if(!nick || !email) {
+                alert("Proszę wypełnić oba pola!");
+                return;
+            }
+            
+            document.getElementById('status-area').style.display = "block";
+            document.getElementById('status-text').innerHTML = `Czekam na wpłatę od <b>${nick}</b> na kwotę <b>${currentPrice} PLN</b>...`;
+            
+            const tipplyUrl = `https://tipply.pl/@daku123?amount=${currentPrice}&nickname=${encodeURIComponent(nick)}&description=${encodeURIComponent(currentProductName + " | " + email)}`;
+            
+            window.open(tipplyUrl, '_blank');
+            initTipplyListener(nick, currentPrice);
+        }
+
+        function initTipplyListener(expectedNick, expectedAmount) {
+            const serverHost = "https://alert-ws.tipply.pl";
+            const socket = io(`${serverHost}/${tipToken}`, {
+                transports: ["polling", "websocket"],
+                query: { token: tipToken, EIO: 3 },
+                path: "/socket.io/"
+            });
+
+            socket.on("alert", (data) => {
+                const receivedAmount = Math.floor(data.amount / 100);
+                if (data.nickname.toLowerCase() === expectedNick.toLowerCase()) {
+                    alert("✅ Sukces! Płatność otrzymana.");
+                    document.getElementById('status-area').innerHTML = "<h3>Dziękujemy! Płatność zatwierdzona. Sprawdź e-mail lub Discord.</h3>";
+                }
+            });
+        }
+    </script>
 </body>
 </html>
-
-
