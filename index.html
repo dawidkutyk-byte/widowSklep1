@@ -42,5 +42,32 @@
 </div>
     </main>
 
+    <div id="payment-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2>Finalizacja zakupu</h2>
+        <p id="product-info">Kupujesz: <b>Plugin MC</b> za <b>20 PLN</b></p>
+        
+        <div class="input-group">
+            <label>Twój Nick z Tipply:</label>
+            <input type="text" id="buyer-nick" placeholder="Wpisz nick, którego użyjesz w Tipply">
+        </div>
+        
+        <div class="input-group">
+            <label>Twój Email (do wysyłki):</label>
+            <input type="email" id="buyer-email" placeholder="twoj@email.pl">
+        </div>
+
+        <button class="pay-go-btn" onclick="redirectToTipply()">Przejdź do płatności</button>
+        
+        <div id="status-area" style="margin-top: 20px; display: none;">
+            <div class="loader"></div>
+            <p>Oczekiwanie na płatność na Tipply...</p>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+
+
